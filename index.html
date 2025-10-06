@@ -9,6 +9,8 @@ body { font-family: Arial, sans-serif; background: #fff8f0; margin:0; padding:0;
 header { background:#d32f2f; color:white; text-align:center; padding:15px 10px;}
 h1 { margin:0;}
 .container { max-width:900px; margin:20px auto; padding:10px;}
+.secao { margin-bottom:30px; }
+.secao h2 { color:#d32f2f; margin-bottom:10px; border-bottom:2px solid #d32f2f; padding-bottom:5px;}
 .item { background:white; padding:15px; margin-bottom:10px; border-radius:10px; box-shadow:0 0 5px rgba(0,0,0,0.1); display:flex; justify-content:space-between; align-items:flex-start;}
 .item-info { flex:1; margin-right:10px;}
 .item h3 { margin:0 0 5px; color:#d32f2f;}
@@ -75,15 +77,78 @@ select { width:100%; padding:8px; margin:5px 0; border-radius:5px; border:1px so
 <script>
 const numeroWhatsApp = "5587981347413";
 
-const pizzas = [
+const pizzasSalgadas = [
   {nome:"A Moda da Casa", desc:"Ovo, presunto, palmito, mussarela, ervilha e milho.", precos:{P:34,M:44,G:54,GG:64}},
   {nome:"A Moda do Pizzaiolo", desc:"Frango, presunto, tomate e mussarela.", precos:{P:32,M:42,G:52,GG:62}},
   {nome:"A Moda Italiana", desc:"Frango, calabresa, champignon, mussarela e catupiry.", precos:{P:30,M:40,G:50,GG:60}},
   {nome:"Alho e Óleo", desc:"Alho frito e mussarela.", precos:{P:30,M:40,G:50,GG:60}},
   {nome:"Atum", desc:"Atum, mussarela e cebola.", precos:{P:35,M:45,G:55,GG:65}},
   {nome:"Alite", desc:"Alite e mussarela.", precos:{P:40,M:50,G:60,GG:70}},
+  {nome:"Baiacatu", desc:"Calabresa, catupiry e mussarela.", precos:{P:30,M:40,G:50,GG:60}},
+  {nome:"Bacalhoada", desc:"Bacalhau, ovos, cebola, tomate e mussarela.", precos:{P:40,M:50,G:60,GG:70}},
+  {nome:"Baiana", desc:"Calabresa, ovo, pimenta e mussarela.", precos:{P:33,M:43,G:53,GG:63}},
+  {nome:"Bacon I", desc:"Bacon e mussarela.", precos:{P:30,M:40,G:50,GG:60}},
+  {nome:"Bacon II", desc:"Bacon, mussarela e catupiry.", precos:{P:31,M:41,G:51,GG:61}},
+  {nome:"Bolonhesa", desc:"Carne moída e mussarela.", precos:{P:34,M:44,G:54,GG:64}},
+  {nome:"Calabresa Mineira", desc:"Calabresa, milho e mussarela.", precos:{P:30,M:40,G:50,GG:60}},
+  {nome:"Carne de Sol", desc:"Cebola roxa, mussarela, cream cheese, pimentão e carne de sol.", precos:{P:35,M:45,G:55,GG:65}},
+  {nome:"Camponesa", desc:"Frango, tomate, gorgonzola, mussarela e manjericão.", precos:{P:35,M:45,G:55,GG:65}},
+  {nome:"Clara e Cosmo", desc:"Peito de peru, gorgonzola, tomate e mussarela.", precos:{P:30,M:40,G:50,GG:60}},
+  {nome:"Calabresa", desc:"Calabresa, mussarela e cebola.", precos:{P:32,M:42,G:52,GG:62}},
+  {nome:"Calzone Aberta", desc:"Frango, milho, presunto e mussarela.", precos:{P:31,M:41,G:51,GG:61}},
+  {nome:"Calzone Fechada", desc:"Frango, milho, presunto e mussarela.", precos:{P:31,M:41,G:51,GG:61}},
+  {nome:"Caipira", desc:"Frango, milho, bacon, catupiry e mussarela.", precos:{P:30,M:40,G:50,GG:60}},
+  {nome:"Carijo", desc:"Frango, calabresa, mussarela e milho.", precos:{P:30,M:40,G:50,GG:60}},
+  {nome:"Cinderela", desc:"Frango, catupiry, palmito e mussarela.", precos:{P:31,M:41,G:51,GG:61}},
+  {nome:"Carmelita", desc:"Brócolis, catupiry, mussarela e bacon.", precos:{P:30,M:40,G:50,GG:60}},
+  {nome:"Do Compadre", desc:"Frango, mussarela, bacon e cheddar.", precos:{P:32,M:42,G:52,GG:62}},
+  {nome:"Escarola", desc:"Escarola, alho, mussarela e bacon.", precos:{P:30,M:40,G:50,GG:60}},
+  {nome:"Espanhola", desc:"Calabresa, bacon, presunto e mussarela.", precos:{P:52,M:62,G:72,GG:null}},
+  {nome:"Frango", desc:"Frango e mussarela.", precos:{P:30,M:40,G:50,GG:60}},
+  {nome:"Frango com Catupiry", desc:"Frango, catupiry e mussarela.", precos:{P:34,M:44,G:54,GG:64}},
+  {nome:"Frango com Cheddar", desc:"Frango, cheddar e mussarela.", precos:{P:32,M:38,G:48,GG:58}},
+  {nome:"Francesa", desc:"Frango, presunto, bacon, mussarela e milho.", precos:{P:32,M:38,G:48,GG:58}},
+  {nome:"Frango com Cream Cheese", desc:"Frango, cream cheese e mussarela.", precos:{P:34,M:44,G:54,GG:64}},
+  {nome:"Gorgonzola", desc:"Gorgonzola, tomate e mussarela.", precos:{P:34,M:44,G:54,GG:64}},
+  {nome:"Camarão", desc:"Camarão, catupiry e mussarela.", precos:{P:35,M:45,G:55,GG:65}},
+  {nome:"Grega", desc:"Lombo, palmito e mussarela.", precos:{P:33,M:43,G:53,GG:63}},
+  {nome:"Italiana", desc:"Champignon, atum, tomate e mussarela.", precos:{P:34,M:44,G:54,GG:64}},
+  {nome:"Lombo Canadense", desc:"Lombo, catupiry e mussarela.", precos:{P:34,M:44,G:54,GG:64}},
+  {nome:"Marguerita", desc:"Provolone, mussarela, manjericão e tomate.", precos:{P:33,M:43,G:53,GG:63}},
+  {nome:"Mussarela", desc:"Mussarela, molho de tomate e orégano.", precos:{P:34,M:44,G:54,GG:64}},
+  {nome:"Milho Verde", desc:"Milho verde, catupiry e mussarela.", precos:{P:33,M:43,G:53,GG:63}},
+  {nome:"Mista", desc:"Presunto, calabresa e mussarela.", precos:{P:33,M:43,G:53,GG:63}},
+  {nome:"Nordestina", desc:"Charque, catupiry, mussarela e queijo coalho.", precos:{P:34,M:44,G:54,GG:64}},
+  {nome:"Napolitana", desc:"Parmesão, tomate e mussarela.", precos:{P:33,M:43,G:53,GG:63}},
+  {nome:"Pizza Andrade", desc:"Rúcula, mussarela e tomate seco.", precos:{P:33,M:43,G:53,GG:63}},
+  {nome:"Peruana", desc:"Atum, palmito, catupiry e mussarela.", precos:{P:34,M:44,G:54,GG:64}},
+  {nome:"Portuguesa", desc:"Presunto, ovo, cebola e mussarela.", precos:{P:30,M:40,G:50,GG:60}},
+  {nome:"Palmito", desc:"Palmito e mussarela.", precos:{P:34,M:44,G:54,GG:64}},
+  {nome:"Pernambucana", desc:"Frango, tomate, bacon e mussarela.", precos:{P:34,M:44,G:54,GG:64}},
+  {nome:"Presunto", desc:"Presunto e mussarela.", precos:{P:30,M:40,G:50,GG:60}},
+  {nome:"Peperone", desc:"Peperone e mussarela.", precos:{P:36,M:46,G:56,GG:66}},
+  {nome:"Siciliana", desc:"Champignon, bacon, cebola e mussarela.", precos:{P:35,M:45,G:55,GG:65}},
+  {nome:"Saborosa", desc:"Bacon, catupiry, batata palha e mussarela.", precos:{P:34,M:44,G:54,GG:64}},
+  {nome:"Vegetariana", desc:"Mussarela, palmito, cebola, tomate, atum e champignon.", precos:{P:35,M:45,G:55,GG:65}},
+  {nome:"2 Queijos", desc:"Mussarela e catupiry.", precos:{P:30,M:40,G:50,GG:60}},
+  {nome:"3 Queijos", desc:"Mussarela, catupiry e provolone.", precos:{P:33,M:43,G:53,GG:63}},
+  {nome:"4 Queijos", desc:"Mussarela, cheddar, catupiry e provolone.", precos:{P:34,M:44,G:54,GG:64}},
+  {nome:"5 Queijos", desc:"Mussarela, catupiry, cheddar, gorgonzola e parmesão.", precos:{P:35,M:45,G:55,GG:65}},
+  {nome:"6 Queijos", desc:"Mussarela, catupiry, cheddar, parmesão, gorgonzola e cream cheese.", precos:{P:37,M:47,G:57,GG:67}}
+];
+
+const pizzasDoces = [
   {nome:"Brigadeiro", desc:"Chocolate e granulado.", precos:{P:32,M:42,G:52,GG:62}},
-  {nome:"Morango", desc:"Chocolate e morango.", precos:{P:34,M:44,G:54,GG:64}}
+  {nome:"Bis", desc:"Chocolate e Bis.", precos:{P:33,M:43,G:53,GG:63}},
+  {nome:"Coco", desc:"Chocolate e coco.", precos:{P:32,M:42,G:52,GG:62}},
+  {nome:"Chocomusa", desc:"Chocolate e mussarela.", precos:{P:33,M:43,G:53,GG:63}},
+  {nome:"Choconana", desc:"Chocolate e banana.", precos:{P:33,M:43,G:53,GG:63}},
+  {nome:"Banana", desc:"Banana, açúcar, canela e mussarela.", precos:{P:32,M:42,G:52,GG:62}},
+  {nome:"Romeu e Julieta", desc:"Mussarela e goiabada.", precos:{P:33,M:43,G:53,GG:63}},
+  {nome:"Sonho de Valsa", desc:"Chocolate e Sonho de Valsa.", precos:{P:33,M:43,G:53,GG:63}},
+  {nome:"M&Ms", desc:"Chocolate e M&Ms.", precos:{P:32,M:42,G:52,GG:62}},
+  {nome:"Morango", desc:"Chocolate e morango.", precos:{P:34,M:44,G:54,GG:64}},
+  {nome:"Doce de Leite", desc:"Doce de leite e mussarela.", precos:{P:33,M:33,G:33,GG:33}}
 ];
 
 const bebidas = [
@@ -92,26 +157,41 @@ const bebidas = [
   {nome:"Suco (jarra)", valor:"R$ 15,00"},
   {nome:"Refrigerante (lata)", valor:"R$ 6,00"},
   {nome:"Refrigerante (1 litro)", valor:"R$ 10,00"},
-  {nome:"Refrigerante (2 litros)", valor:"R$ 15,00"},
-  {nome:"Heineken Long Neck", valor:"R$ 10,00"},
-  {nome:"Heineken Long Neck Zero", valor:"R$ 10,00"},
-  {nome:"Heineken 600 ml", valor:"R$ 17,00"},
-  {nome:"Budweiser Long Neck", valor:"R$ 8,00"},
-  {nome:"Budweiser 600 ml", valor:"R$ 12,00"},
-  {nome:"Stella 600 ml", valor:"R$ 12,00"},
-  {nome:"Brahma 600 ml", valor:"R$ 10,00"},
-  {nome:"Johnnie Walker (dose)", valor:"R$ 14,00"},
-  {nome:"White Horse (dose)", valor:"R$ 10,00"},
-  {nome:"Black & White (dose)", valor:"R$ 8,00"}
+  {nome:"Refrigerante (2 litros)", valor:"R$ 15,00"}
 ];
 
 let pedido = [];
 
 function gerarMenu() {
   const menu = document.getElementById("menu");
+  menu.innerHTML = "";
 
-  // Pizzas
-  pizzas.forEach(item => {
+  // Seção Pizzas Salgadas
+  let secao = document.createElement("div");
+  secao.className="secao";
+  secao.innerHTML="<h2>🍕 PIZZAS SALGADAS</h2>";
+  pizzasSalgadas.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `
+      <div class="item-info">
+        <h3>${item.nome}</h3>
+        <p>${item.desc}</p>
+        <div class="preco">
+          P: R$${item.precos.P} | M: R$${item.precos.M} | G: R$${item.precos.G} | GG: ${item.precos.GG!==null?'R$'+item.precos.GG:'—'}
+        </div>
+      </div>
+      <button onclick="abrirModal()">Escolher</button>
+    `;
+    secao.appendChild(div);
+  });
+  menu.appendChild(secao);
+
+  // Seção Pizzas Doces
+  secao = document.createElement("div");
+  secao.className="secao";
+  secao.innerHTML="<h2>🍫 PIZZAS DOCES</h2>";
+  pizzasDoces.forEach(item => {
     const div = document.createElement("div");
     div.className = "item";
     div.innerHTML = `
@@ -124,36 +204,37 @@ function gerarMenu() {
       </div>
       <button onclick="abrirModal()">Escolher</button>
     `;
-    menu.appendChild(div);
+    secao.appendChild(div);
   });
+  menu.appendChild(secao);
 
-  // Bebidas
+  // Seção Bebidas
+  secao = document.createElement("div");
+  secao.className="secao";
+  secao.innerHTML="<h2>🍹 BEBIDAS</h2>";
   bebidas.forEach(item => {
     const div = document.createElement("div");
     div.className = "item";
     div.innerHTML = `
       <div class="item-info">
         <h3>${item.nome}</h3>
-        <p class="preco">Valor: ${item.valor}</p>
+        <p class="preco">${item.valor}</p>
       </div>
       <button onclick="adicionarBebida('${item.nome}')">Escolher</button>
     `;
-    menu.appendChild(div);
+    secao.appendChild(div);
   });
+  menu.appendChild(secao);
 
   ["sabor1","sabor2","sabor3"].forEach(selId => {
     const sel = document.getElementById(selId);
-    pizzas.forEach(i => sel.innerHTML += `<option value="${i.nome}">${i.nome}</option>`);
+    pizzasSalgadas.concat(pizzasDoces).forEach(i => sel.innerHTML += `<option value="${i.nome}">${i.nome}</option>`);
   });
 }
 
 function abrirModal() { document.getElementById("modal").style.display="flex"; }
 function fecharModal() { document.getElementById("modal").style.display="none"; }
-
-function abrirCarrinho() { 
-  document.getElementById("modalCarrinho").style.display="flex"; 
-  atualizarCarrinho();
-}
+function abrirCarrinho() { document.getElementById("modalCarrinho").style.display="flex"; atualizarCarrinho(); }
 function fecharCarrinho() { document.getElementById("modalCarrinho").style.display="none"; }
 
 function confirmarSabores() {
@@ -168,13 +249,16 @@ function confirmarSabores() {
   if(s2 && s2!==s1) saboresSelecionados.push(s2);
   if(s3 && s3!==s1 && s3!==s2) saboresSelecionados.push(s3);
 
-  pedido.push({texto:`${saboresSelecionados.join(" + ")} - Tamanho ${tamanho}`, id:Date.now()});
+  const texto = `${saboresSelecionados.join(" + ")} - Tamanho ${tamanho}`;
+  if(!pedido.some(p => p.texto === texto)) pedido.push({texto,id:Date.now()});
+
   fecharModal();
   abrirCarrinho();
 }
 
 function adicionarBebida(nome) {
-  pedido.push({texto:`🍹 ${nome}`, id:Date.now()});
+  const texto = `🍹 ${nome}`;
+  if(!pedido.some(p=>p.texto===texto)) pedido.push({texto,id:Date.now()});
   abrirCarrinho();
 }
 
