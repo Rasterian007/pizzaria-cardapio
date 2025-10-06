@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pizzaria Andrade 🍕</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff8f0;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    header {
+      background: #d32f2f;
+      color: white;
+      text-align: center;
+      padding: 15px 10px;
+    }
+    h1 { margin: 0; }
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 10px;
+    }
+    .pizza {
+      background: white;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .pizza-info {
+      flex: 1;
+      margin-right: 10px;
+    }
+    .pizza h3 {
+      margin: 0 0 5px;
+      color: #d32f2f;
+    }
+    .pizza p {
+      margin: 0;
+      font-size: 0.9em;
+    }
+    button {
+      background: #d32f2f;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #b71c1c;
+    }
+    #pedido {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff3e0;
+      border-top: 2px solid #d32f2f;
+      padding: 15px;
+      text-align: center;
+    }
+    #pedido textarea {
+      width: 80%;
+      height: 60px;
+      margin: 5px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      padding: 5px;
+    }
+    #modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    #modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 300px;
+      text-align: center;
+    }
+    select {
+      width: 100%;
+      padding: 8px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🍕 Pizzaria Andrade 🍕</h1>
+  <p>Escolha seus sabores (1 ou 2) e finalize o pedido pelo WhatsApp!</p>
+</header>
+
+<div class="container" id="menu"></div>
+
+<div id="pedido">
+  <h3>🛒 Seu Pedido</h3>
+  <p id="itens">Nenhum item selecionado</p>
+  <textarea id="obs" placeholder="Observações (ex: sem cebola, borda recheada...)"></textarea><br>
+  <button onclick="finalizarPedido()">Finalizar Pedido via WhatsApp</button>
+</div>
+
+<!-- Modal para escolher sabores -->
+<div id="modal">
+  <div id="modal-content">
+    <h3>🍕 Escolha até 2 sabores</h3>
+    <select id="sabor1"></select>
+    <select id="sabor2"></select>
+    <button onclick="confirmarSabores()">Adicionar Pizza</button><br><br>
+    <button onclick="fecharModal()">Cancelar</button>
+  </div>
+</div>
+
+<script>
+const numeroWhatsApp = "5599999999999"; // Seu número com DDD e 55 no início
+
+const pizzas = [
+  {nome:"Mussarela", desc:"Queijo mussarela derretido, orégano e azeitonas."},
+  {nome:"Calabresa", desc:"Calabresa fatiada, cebola e orégano."},
+  {nome:"Portuguesa", desc:"Presunto, ovo, cebola, azeitonas e pimentão."},
+  {nome:"Frango com Catupiry", desc:"Frango desfiado com catupiry cremoso."},
+  {nome:"Quatro Queijos", desc:"Mussarela, parmesão, provolone e catupiry."},
+  {nome:"Marguerita", desc:"Mussarela, tomate e manjericão fresco."},
+  {nome:"Napolitana", desc:"Mussarela, tomate, parmesão e orégano."},
+  {nome:"Bacon", desc:"Mussarela, bacon crocante e orégano."},
+  {nome:"Milho", desc:"Mussarela, milho verde e catupiry."},
+  {nome:"Palmito", desc:"Mussarela, palmito e orégano."},
+  {nome:"Atum", desc:"Atum sólido, cebola e azeitonas."},
+  {nome:"Lombo com Catupiry", desc:"Lombo canadense, catupiry e orégano."},
+  {nome:"Baiana", desc:"Calabresa moída, pimenta e cebola."},
+  {nome:"Vegetariana", desc:"Legumes variados e queijo mussarela."},
+  {nome:"Pepperoni", desc:"Fatias de pepperoni e queijo mussarela."},
+  {nome:"Toscana", desc:"Linguiça toscana fatiada e cebola."},
+  {nome:"Carne Seca", desc:"Carne seca desfiada e catupiry."},
+  {nome:"Filé com Cheddar", desc:"Tiras de filé, cheddar e cebola."},
+  {nome:"Strogonoff", desc:"Frango ao molho strogonoff e batata palha."},
+  {nome:"Nordestina", desc:"Carne de sol, cebola roxa e catupiry."},
+  {nome:"Alho e Óleo", desc:"Mussarela, alho dourado e azeite."},
+  {nome:"Camarão", desc:"Camarões ao molho rosé e mussarela."},
+  {nome:"Moda da Casa", desc:"Presunto, bacon, milho e catupiry."},
+  {nome:"Caprese", desc:"Tomate, manjericão e queijo minas."},
+  {nome:"Catuperoni", desc:"Catupiry com pepperoni."},
+  {nome:"Cheddar com Bacon", desc:"Mussarela, cheddar e bacon crocante."},
+  {nome:"Frango com Milho", desc:"Frango desfiado e milho verde."},
+  {nome:"Presunto", desc:"Presunto fatiado, mussarela e orégano."},
+  {nome:"Brócolis com Bacon", desc:"Brócolis, bacon e catupiry."},
+  {nome:"Rúcula com Tomate Seco", desc:"Rúcula, tomate seco e parmesão."},
+  {nome:"Mexicana", desc:"Carne moída, pimenta e cheddar."},
+  {nome:"Califórnia", desc:"Mussarela, presunto e frutas tropicais."},
+  {nome:"Banana com Canela", desc:"Banana fatiada, canela e açúcar."},
+  {nome:"Chocolate", desc:"Chocolate derretido e granulado."},
+  {nome:"Prestígio", desc:"Chocolate e coco ralado."},
+  {nome:"Sensação", desc:"Chocolate e morango."},
+  {nome:"Brigadeiro", desc:"Chocolate e granulado."},
+  {nome:"Romeu e Julieta", desc:"Queijo e goiabada."},
+  {nome:"Beijinho", desc:"Coco e leite condensado."},
+  {nome:"Doce de Leite", desc:"Doce de leite e canela."},
+  {nome:"Confete", desc:"Chocolate e confete colorido."},
+  {nome:"Ovomaltine", desc:"Chocolate e ovomaltine crocante."},
+  {nome:"Nutella", desc:"Nutella cremosa e morango."},
+  {nome:"Morango com Chocolate", desc:"Chocolate e morangos frescos."},
+  {nome:"M&M", desc:"Chocolate e M&M’s."},
+  {nome:"Brigadeiro Branco", desc:"Chocolate branco e coco."}
+];
+
+let pedido = [];
+
+function gerarMenu() {
+  const menu = document.getElementById("menu");
+  pizzas.forEach(pizza => {
+    const div = document.createElement("div");
+    div.className = "pizza";
+    div.innerHTML = `
+      <div class="pizza-info">
+        <h3>${pizza.nome}</h3>
+        <p>${pizza.desc}</p>
+      </div>
+      <button onclick="abrirModal()">Escolher</button>
+    `;
+    menu.appendChild(div);
+  });
+}
+
+function abrirModal() {
+  const modal = document.getElementById("modal");
+  const sabor1 = document.getElementById("sabor1");
+  const sabor2 = document.getElementById("sabor2");
+  sabor1.innerHTML = "";
+  sabor2.innerHTML = "<option value=''>-- Sem segundo sabor --</option>";
+  pizzas.forEach(p => {
+    sabor1.innerHTML += `<option value="${p.nome}">${p.nome}</option>`;
+    sabor2.innerHTML += `<option value="${p.nome}">${p.nome}</option>`;
+  });
+  modal.style.display = "flex";
+}
+
+function fecharModal() {
+  document.getElementById("modal").style.display = "none";
+}
+
+function confirmarSabores() {
+  const sabor1 = document.getElementById("sabor1").value;
+  const sabor2 = document.getElementById("sabor2").value;
+  if (!sabor1) {
+    alert("Escolha pelo menos um sabor!");
+    return;
+  }
+  const nomePizza = sabor2 && sabor2 !== "" && sabor1 !== sabor2 ?
+    `1/2 ${sabor1} + 1/2 ${sabor2}` :
+    sabor1;
+  pedido.push(nomePizza);
+  document.getElementById("itens").innerText = pedido.join(", ");
+  fecharModal();
+}
+
+function finalizarPedido() {
+  if (pedido.length === 0) {
+    alert("Adicione pelo menos uma pizza!");
+    return;
+  }
+  const obs = document.getElementById("obs").value;
+  const mensagem = encodeURIComponent(
+    `🍕 Pedido - Pizzaria Andrade:\n\nPizzas: ${pedido.join(", ")}\n\nObservações: ${obs}`
+  );
+  window.open(`https://wa.me/${numeroWhatsApp}?text=${mensagem}`, "_blank");
+}
+
+gerarMenu();
+</script>
+
+</body>
+</html>
