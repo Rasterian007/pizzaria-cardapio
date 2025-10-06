@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+(<!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
@@ -67,6 +67,13 @@ select { width:100%; padding:8px; margin:5px 0; border-radius:5px; border:1px so
       <option value="Retirada">🏠 Retirar no local</option>
       <option value="Entrega">🚗 Entrega</option>
     </select><br>
+
+    <select id="pagamento">
+  <option value="Dinheiro">💵 Dinheiro</option>
+  <option value="Pix">📲 Pix</option>
+  <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
+  <option value="Cartão de Débito">🏧 Cartão de Débito</option>
+</select><br>
 
     <textarea id="obs" placeholder="Observações (ex: sem cebola, borda recheada...)"></textarea><br>
     <button onclick="finalizarPedido()">Finalizar Pedido via WhatsApp</button>
@@ -241,7 +248,6 @@ function confirmarSabores() {
   const s1 = document.getElementById("sabor1").value;
   const s2 = document.getElementById("sabor2").value;
   const s3 = document.getElementById("sabor3").value;
-  const tamanho = document.getElementById("tamanho").value;
 
   if(!s1) { alert("Escolha pelo menos um sabor"); return; }
 
@@ -249,49 +255,49 @@ function confirmarSabores() {
   if(s2 && s2!==s1) saboresSelecionados.push(s2);
   if(s3 && s3!==s1 && s3!==s2) saboresSelecionados.push(s3);
 
-  const texto = `${saboresSelecionados.join(" + ")} - Tamanho ${tamanho}`;
-  if(!pedido.some(p => p.texto === texto)) pedido.push({texto,id:Date.now()});
+  // Aqui, removemos o tamanho fixo, só adicionamos os sabores
+  const texto = `${saboresSelecionados.join(" + ")}`;
+  if(!pedido.some(p => p.texto === texto)) pedido.push({texto,id:Date.now(), tamanho:"P"}); // tamanho padrão P, será alterável no carrinho
 
   fecharModal();
   abrirCarrinho();
 }
 
-function adicionarBebida(nome) {
-  const texto = `🍹 ${nome}`;
-  if(!pedido.some(p=>p.texto===texto)) pedido.push({texto,id:Date.now()});
-  abrirCarrinho();
-}
+// Função para atualizar tamanho no carrinho
+document.getElementById("tamanho").addEventListener("change", function(){
+  if(pedido.length > 0) {
+    // aplica o tamanho a todos os itens de pizza (não aplica para bebidas)
+    pedido.forEach(p => {
+      if(!p.texto.startsWith("🍹")) { // só pizzas
+        p.tamanho = this.value;
+      }
+    });
+    atualizarCarrinho();
+  }
+});
 
 function atualizarCarrinho() {
   const div = document.getElementById("itens");
   div.innerHTML="";
   pedido.forEach(p => {
+    const textoCompleto = p.tamanho ? `${p.texto} - Tamanho ${p.tamanho}` : p.texto;
     const itemDiv = document.createElement("div");
     itemDiv.className="item-carrinho";
-    itemDiv.innerHTML=`<span>${p.texto}</span><button onclick="removerItem(${p.id})">❌ Remover</button>`;
+    itemDiv.innerHTML=`<span>${textoCompleto}</span><button onclick="removerItem(${p.id})">❌ Remover</button>`;
     div.appendChild(itemDiv);
   });
 }
+
 
 function removerItem(id) {
   pedido = pedido.filter(p=>p.id!==id);
   atualizarCarrinho();
 }
 
-function finalizarPedido() {
-  if(pedido.length===0) { alert("Adicione pelo menos um item!"); return; }
-  const tipoEntrega = document.getElementById("tipoEntrega").value;
-  const obs = document.getElementById("obs").value;
 
-  const mensagem = encodeURIComponent(
-    `🍕🍹 *Pedido - Pizzaria Andrade*\n\n${pedido.map(p=>p.texto).join("\n")}\n\n📦 Tipo: ${tipoEntrega}\n📝 Observações: ${obs}`
-  );
-
-  window.open(`https://wa.me/${numeroWhatsApp}?text=${mensagem}`, "_blank");
-}
 
 gerarMenu();
 </script>
 
 </body>
-</html>
+</html> )
