@@ -144,6 +144,7 @@ const precosBorda = {
   "Chocolate": {P:10, M:10, G:10, GG:10}
 };
 
+// Arrays de pizzas e bebidas (mantidos do seu código original)
 const pizzasSalgadas = [
   {nome:"A Moda da Casa", desc:"Ovo, presunto, palmito, mussarela, ervilha e milho.", precos:{P:34,M:44,G:54,GG:64}},
   {nome:"A Moda do Pizzaiolo", desc:"Frango, presunto, tomate e mussarela.", precos:{P:32,M:42,G:52,GG:62}},
@@ -203,7 +204,6 @@ const pizzasSalgadas = [
   {nome:"5 Queijos", desc:"Mussarela, catupiry, cheddar, gorgonzola e parmesão.", precos:{P:35,M:45,G:55,GG:65}},
   {nome:"6 Queijos", desc:"Mussarela, catupiry, cheddar, parmesão, gorgonzola e cream cheese.", precos:{P:37,M:47,G:57,GG:67}}
 ];
-
 const pizzasDoces = [
   {nome:"Brigadeiro", desc:"Chocolate e granulado.", precos:{P:32,M:42,G:52,GG:62}},
   {nome:"Bis", desc:"Chocolate e Bis.", precos:{P:33,M:43,G:53,GG:63}},
@@ -235,6 +235,7 @@ const bebidas = [
   {nome: "Black White (dose)", valor: "R$ 8,00"}
 ];
 
+// Gera o menu completo
 function gerarMenu() {
   const menu = document.getElementById("menu");
   menu.innerHTML = "";
@@ -265,8 +266,43 @@ function gerarMenu() {
     menu.appendChild(secao);
   }
 
+  function criarSecaoBordas() {
+    const secao = document.createElement("div");
+    secao.className = "secao";
+    secao.innerHTML = `<h2>🍕 BORDAS</h2>`;
+    
+    const bordas = [
+      {nome:"Catupiry", precos:{P:8,M:8,G:8,GG:8}},
+      {nome:"Mussarela", precos:{P:10,M:10,G:10,GG:10}},
+      {nome:"Cheddar", precos:{P:12,M:12,G:12,GG:12}},
+      {nome:"Cream Cheese", precos:{P:15,M:15,G:15,GG:15}},
+      {nome:"Chocolate", precos:{P:10,M:10,G:10,GG:10}}
+    ];
+
+    bordas.forEach(borda=>{
+      const div = document.createElement("div");
+      div.className="item";
+      div.innerHTML = `
+        <div class="item-info">
+          <h3>Borda ${borda.nome}</h3>
+          <div class="preco">
+            P: R$${borda.precos.P} | 
+            M: R$${borda.precos.M} | 
+            G: R$${borda.precos.G} | 
+            GG: R$${borda.precos.GG}
+          </div>
+        </div>
+      `;
+      secao.appendChild(div);
+    });
+
+    document.getElementById("menu").appendChild(secao);
+}
+
+
   criarSecao("🍕 PIZZAS SALGADAS", pizzasSalgadas);
   criarSecao("🍫 PIZZAS DOCES", pizzasDoces);
+  criarSecaoBordas();
   criarSecao("🍹 BEBIDAS", bebidas, false);
 
   ["sabor1","sabor2","sabor3"].forEach(selId=>{
@@ -275,6 +311,7 @@ function gerarMenu() {
   });
 }
 
+// Funções do carrinho e modal (mantidas do seu código original)
 function abrirModal(){ document.getElementById("modal").style.display="flex"; }
 function fecharModal(){ document.getElementById("modal").style.display="none"; }
 function abrirCarrinho(){ document.getElementById("modalCarrinho").style.display="flex"; atualizarCarrinho(); }
