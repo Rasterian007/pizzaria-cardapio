@@ -79,7 +79,6 @@ select, textarea { width:100%; padding:8px; margin:5px 0; border-radius:5px; bor
     <select id="sabor3"><option value="">-- Sabor 3 --</option></select>
     <br><br>
 
-    <!-- Escolha do tamanho -->
     <label for="tamanhoPizza">📏 Escolha o tamanho:</label>
     <select id="tamanhoPizza">
       <option value="P">Pequena (P)</option>
@@ -89,7 +88,6 @@ select, textarea { width:100%; padding:8px; margin:5px 0; border-radius:5px; bor
     </select>
     <p id="precoTamanho">Preço do tamanho: R$0</p>
 
-    <!-- Escolha da borda -->
     <label for="borda">🍞 Escolha a borda recheada:</label>
     <select id="borda">
       <option value="Sem borda">Sem borda</option>
@@ -145,7 +143,7 @@ const precosBorda = {
   "Chocolate": {P:10, M:10, G:10, GG:10}
 };
 
-// Pizzas salgadas e doces (arrays do seu código)
+ // Pizzas Salgadas
 const pizzasSalgadas = [
   {nome:"A MODA DA CASA", desc:"Ovo, presunto, palmito, mussarela, ervilha e milho.", precos:{P:34,M:44,G:54,GG:64}},
   {nome:"A MODA DO PIZZAIOLO", desc:"Frango, presunto, tomate e mussarela.", precos:{P:32,M:42,G:52,GG:62}},
@@ -207,6 +205,7 @@ const pizzasSalgadas = [
   {nome:"6 QUEIJOS", desc:"Mussarela, catupiry, cheddar, parmesão, gorgonzola e cream cheese.", precos:{P:37,M:47,G:57,GG:67}}
 ];
 
+// Pizzas Doces
 const pizzasDoces = [
   {nome:"Brigadeiro", desc:"Chocolate e granulado.", precos:{P:32,M:42,G:52,GG:62}},
   {nome:"Bis", desc:"Chocolate e Bis.", precos:{P:33,M:43,G:53,GG:63}},
@@ -220,6 +219,7 @@ const pizzasDoces = [
   {nome:"Morango", desc:"Chocolate e morango.", precos:{P:34,M:44,G:54,GG:64}},
   {nome:"Doce de Leite", desc:"Doce de leite e mussarela.", precos:{P:33,M:33,G:33,GG:33}}
 ];
+// Bebidas
 const bebidas = [
   {nome: "Água", valor: "R$ 3,00"},
   {nome: "Suco (copo)", valor: "R$ 7,00"},
@@ -238,6 +238,28 @@ const bebidas = [
   {nome: "Black White (dose)", valor: "R$ 8,00"}
 ];
 
+// ---------- FUNÇÃO DE BLOQUEAR SABORES REPETIDOS ----------
+function atualizarOpcoesSabores() {
+  const selects = ["sabor1","sabor2","sabor3"].map(id => document.getElementById(id));
+  const valores = selects.map(sel => sel.value);
+
+  selects.forEach((sel, idx) => {
+    const atual = sel.value;
+    sel.innerHTML = `<option value="">-- ${sel.id.toUpperCase()} --</option>`;
+    pizzasSalgadas.concat(pizzasDoces).forEach(p => {
+      if (!valores.includes(p.nome) || p.nome === atual) {
+        const option = document.createElement("option");
+        option.value = p.nome;
+        option.textContent = p.nome;
+        if (p.nome === atual) option.selected = true;
+        sel.appendChild(option);
+      }
+    });
+  });
+  atualizarTotal();
+}
+
+// ---------- FUNÇÃO DE GERAR MENU ----------
 function gerarMenu() {
   const menu = document.getElementById("menu");
   menu.innerHTML = "";
@@ -249,8 +271,7 @@ function gerarMenu() {
     itens.forEach(item=>{
       const div=document.createElement("div");
       div.className="item";
-      div.innerHTML=`
-        <div class="item-info">
+      div.innerHTML=`<div class="item-info">
           <h3>${item.nome}</h3>
           <p>${item.desc || ""}</p>
           ${item.precos
@@ -259,9 +280,16 @@ function gerarMenu() {
               </div>`
             : `<p class="preco">${item.valor}</p>`
           }
-        </div>
-        <button onclick="${isPizza ? 'abrirModal()' : `adicionarBebida(\'${item.nome}\')`}">Adicionar</button>
-      `;
+        </div>`;
+      const btn=document.createElement("button");
+      if(isPizza){
+        btn.textContent="Adicionar";
+        btn.onclick=()=>{abrirModal(item.nome)};
+      }else{
+        btn.textContent="Adicionar";
+        btn.onclick=()=>{adicionarBebida(item.nome)};
+      }
+      div.appendChild(btn);
       secao.appendChild(div);
     });
     menu.appendChild(secao);
@@ -272,69 +300,68 @@ function gerarMenu() {
   criarSecao("🍹 BEBIDAS", bebidas, false);
 
   ["sabor1","sabor2","sabor3"].forEach(selId=>{
-    const sel=document.getElementById(selId);
-    pizzasSalgadas.concat(pizzasDoces).forEach(i=> sel.innerHTML+=`<option value="${i.nome}">${i.nome}</option>`);
+    document.getElementById(selId).addEventListener("change", atualizarOpcoesSabores);
   });
 }
 
-function abrirModal() {
-  document.getElementById("modal").style.display = "flex";
+// ---------- FUNÇÕES DE MODAL ----------
+function abrirModal(nomeSabor=null){
+  document.getElementById("modal").style.display="flex";
   const todosSabores = pizzasSalgadas.concat(pizzasDoces);
-  document.getElementById("sabor1").value = todosSabores[0].nome;
+  document.getElementById("sabor1").value = nomeSabor || todosSabores[0].nome;
   document.getElementById("sabor2").value = "";
   document.getElementById("sabor3").value = "";
-  atualizarTotal();
+  document.getElementById("borda").value="Sem borda";
+  document.getElementById("tamanhoPizza").value="P";
+  atualizarOpcoesSabores();
 }
 
-function fecharModal() {
-  document.getElementById("modal").style.display = "none";
-  document.getElementById("sabor1").value = "";
-  document.getElementById("sabor2").value = "";
-  document.getElementById("sabor3").value = "";
+function fecharModal(){
+  document.getElementById("modal").style.display="none";
+  ["sabor1","sabor2","sabor3"].forEach(id => document.getElementById(id).value="");
   document.getElementById("borda").value = "Sem borda";
   document.getElementById("tamanhoPizza").value = "P";
   atualizarTotal();
 }
 
-// Atualiza os preços em tempo real
-function atualizarTotal() {
-  const s1 = document.getElementById("sabor1").value;
-  const s2 = document.getElementById("sabor2").value;
-  const s3 = document.getElementById("sabor3").value;
-  const borda = document.getElementById("borda").value;
-  const tamanho = document.getElementById("tamanhoPizza").value;
+// ---------- FUNÇÃO DE TOTAL ----------
+function atualizarTotal(){
+  const s1=document.getElementById("sabor1").value;
+  const s2=document.getElementById("sabor2").value;
+  const s3=document.getElementById("sabor3").value;
+  const borda=document.getElementById("borda").value;
+  const tamanho=document.getElementById("tamanhoPizza").value;
 
-  if(!s1) {
+  if(!s1){ 
     document.getElementById("precoTamanho").textContent = `Preço do tamanho: R$0`;
     document.getElementById("precoBorda").textContent = `Preço da borda: R$0`;
     document.getElementById("totalPizza").textContent = `Total: R$0`;
     return;
   }
 
-  let sabores = [s1];
-  if(s2 && s2 !== s1) sabores.push(s2);
-  if(s3 && s3 !== s1 && s3 !== s2) sabores.push(s3);
+  let sabores=[s1];
+  if(s2 && s2!==s1) sabores.push(s2);
+  if(s3 && s3!==s1 && s3!==s2) sabores.push(s3);
 
-  let precoSabores = 0;
+  let precoSabores=0;
   sabores.forEach(sab=>{
-    const pizza = pizzasSalgadas.concat(pizzasDoces).find(p => p.nome===sab);
-    if(pizza) precoSabores += pizza.precos[tamanho];
+    const pizza=pizzasSalgadas.concat(pizzasDoces).find(p=>p.nome===sab);
+    if(pizza) precoSabores+=pizza.precos[tamanho];
   });
 
-  let precoBorda = precosBorda[borda][tamanho] || 0;
-  let precoTotal = precoSabores + precoBorda;
+  let precoBorda=precosBorda[borda][tamanho]||0;
+  let precoTotal=precoSabores+precoBorda;
 
-  document.getElementById("precoTamanho").textContent = `Preço do tamanho: R$${precoSabores}`;
-  document.getElementById("precoBorda").textContent = `Preço da borda: R$${precoBorda}`;
-  document.getElementById("totalPizza").textContent = `Total: R$${precoTotal}`;
+  document.getElementById("precoTamanho").textContent=`Preço do tamanho: R$${precoSabores}`;
+  document.getElementById("precoBorda").textContent=`Preço da borda: R$${precoBorda}`;
+  document.getElementById("totalPizza").textContent=`Total: R$${precoTotal}`;
 }
 
-// Eventos de mudança
 ["sabor1","sabor2","sabor3","tamanhoPizza","borda"].forEach(id=>{
   document.getElementById(id).addEventListener("change", atualizarTotal);
 });
 
-// Carrinho
+// ---------- FUNÇÕES DE CARRINHO ----------
 function confirmarSabores(){
   const s1=document.getElementById("sabor1").value;
   const s2=document.getElementById("sabor2").value;
@@ -348,21 +375,21 @@ function confirmarSabores(){
   if(s2 && s2!==s1) sabores.push(s2);
   if(s3 && s3!==s1 && s3!==s2) sabores.push(s3);
 
-  let precoTotal = 0;
+  let precoTotal=0;
   sabores.forEach(sab=>{
-    const pizza = pizzasSalgadas.concat(pizzasDoces).find(p => p.nome===sab);
-    if(pizza) precoTotal += pizza.precos[tamanho];
+    const pizza=pizzasSalgadas.concat(pizzasDoces).find(p=>p.nome===sab);
+    if(pizza) precoTotal+=pizza.precos[tamanho];
   });
-  precoTotal += precosBorda[borda][tamanho] || 0;
+  precoTotal+=precosBorda[borda][tamanho]||0;
 
-  const texto = `${sabores.join(" + ")} (${tamanho}) - Borda: ${borda} - Total: R$${precoTotal}`;
-  pedido.push({texto, id:Date.now()});
+  const texto=`${sabores.join(" + ")} (${tamanho}) - Borda: ${borda} - Total: R$${precoTotal}`;
+  pedido.push({texto,id:Date.now()});
   atualizarContadorCarrinho();
   fecharModal();
 }
 
 function adicionarBebida(nome){
-  pedido.push({texto:nome, id:Date.now()});
+  pedido.push({texto:nome,id:Date.now()});
   atualizarContadorCarrinho();
 }
 
@@ -375,10 +402,7 @@ function removerItem(id){
 function atualizarCarrinho(){
   const itensDiv=document.getElementById("itens");
   itensDiv.innerHTML="";
-  if(pedido.length===0){
-    itensDiv.innerHTML="<p>Seu carrinho está vazio 🍕</p>";
-    return;
-  }
+  if(pedido.length===0){ itensDiv.innerHTML="<p>Seu carrinho está vazio 🍕</p>"; return; }
   pedido.forEach(p=>{
     const div=document.createElement("div");
     div.className="item-carrinho";
@@ -397,17 +421,45 @@ function atualizarContadorCarrinho(){
 function abrirCarrinho(){ document.getElementById("modalCarrinho").style.display="flex"; atualizarCarrinho(); }
 function fecharCarrinho(){ document.getElementById("modalCarrinho").style.display="none"; }
 
-function finalizarPedido(){
-  if(pedido.length===0){ alert("Adicione itens ao carrinho antes de finalizar!"); return; }
-  const pagamento=document.getElementById("pagamento").value;
-  const obs=document.getElementById("obs").value;
-  let texto="Olá! Gostaria de fazer o pedido:\n";
-  pedido.forEach(p=> texto+=`- ${p.texto}\n`);
-  texto+=`Pagamento: ${pagamento}\n`;
-  if(obs) texto+=`Observações: ${obs}\n`;
-  const url=`https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
+function finalizarPedido() {
+  if(pedido.length === 0){ 
+    alert("Adicione itens ao carrinho antes de finalizar!"); 
+    return; 
+  }
+
+  const entrega = document.getElementById("tipoEntrega").value;
+  const pagamento = document.getElementById("pagamento").value;
+  const obs = document.getElementById("obs").value;
+  let texto = "Olá! Gostaria de fazer o pedido:\n\n";
+
+  // Separar pizzas e bebidas
+  pedido.forEach(p => {
+    if(p.texto.includes("Borda") || p.texto.includes("Total")) {
+      const partes = p.texto.split(" - ");
+      const saboresETamanho = partes[0]; 
+      const borda = partes[1] ? partes[1].replace("Borda: ","") : "Sem borda";
+
+      const tamanhoMatch = saboresETamanho.match(/\(([^)]+)\)/);
+      const tamanho = tamanhoMatch ? tamanhoMatch[1] : "?";
+      const sabores = saboresETamanho.replace(/\([^)]+\)/,"");
+
+      texto += `🍕 Pizza: ${sabores.trim()}\n`;
+      texto += `Tamanho: ${tamanho}\n`;
+      texto += `Borda: ${borda}\n\n`;
+    } else {
+      texto += `🥤 Bebida: ${p.texto}\n\n`;
+    }
+  });
+
+  texto += `🚚 Tipo de entrega: ${entrega}\n`;
+  texto += `💳 Forma de pagamento: ${pagamento}\n`;
+  if(obs) texto += `📝 Observações: ${obs}\n`;
+
+  const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
   window.open(url,"_blank");
 }
+
+
 
 gerarMenu();
 </script>
