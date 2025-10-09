@@ -86,7 +86,6 @@ select, textarea { width:100%; padding:8px; margin:5px 0; border-radius:5px; bor
       <option value="G">Grande (G)</option>
       <option value="GG">Gigante (GG)</option>
     </select>
-    <p id="precoTamanho">Preço do tamanho: R$0</p>
 
     <label for="borda">🍞 Escolha a borda recheada:</label>
     <select id="borda">
@@ -97,9 +96,7 @@ select, textarea { width:100%; padding:8px; margin:5px 0; border-radius:5px; bor
       <option value="Cream Cheese">Cream Cheese</option>
       <option value="Chocolate">Chocolate</option>
     </select>
-    <p id="precoBorda">Preço da borda: R$0</p>
 
-    <p id="totalPizza">Total: R$0</p>
     <button onclick="confirmarSabores()">Adicionar ao Carrinho</button>
     <button onclick="fecharModal()" style="background:#b71c1c;">Cancelar</button>
   </div>
@@ -332,13 +329,6 @@ function atualizarTotal(){
   const borda=document.getElementById("borda").value;
   const tamanho=document.getElementById("tamanhoPizza").value;
 
-  if(!s1){ 
-    document.getElementById("precoTamanho").textContent = `Preço do tamanho: R$0`;
-    document.getElementById("precoBorda").textContent = `Preço da borda: R$0`;
-    document.getElementById("totalPizza").textContent = `Total: R$0`;
-    return;
-  }
-
   let sabores=[s1];
   if(s2 && s2!==s1) sabores.push(s2);
   if(s3 && s3!==s1 && s3!==s2) sabores.push(s3);
@@ -375,18 +365,13 @@ function confirmarSabores(){
   if(s2 && s2!==s1) sabores.push(s2);
   if(s3 && s3!==s1 && s3!==s2) sabores.push(s3);
 
-  let precoTotal=0;
-  sabores.forEach(sab=>{
-    const pizza=pizzasSalgadas.concat(pizzasDoces).find(p=>p.nome===sab);
-    if(pizza) precoTotal+=pizza.precos[tamanho];
-  });
-  precoTotal+=precosBorda[borda][tamanho]||0;
-
-  const texto=`${sabores.join(" + ")} (${tamanho}) - Borda: ${borda} - Total: R$${precoTotal}`;
+  // Apenas texto com sabores, tamanho e borda
+  const texto=`${sabores.join(" + ")} (${tamanho}) - Borda: ${borda}`;
   pedido.push({texto,id:Date.now()});
   atualizarContadorCarrinho();
   fecharModal();
 }
+
 
 function adicionarBebida(nome){
   pedido.push({texto:nome,id:Date.now()});
