@@ -139,6 +139,15 @@ const precosBorda = {
   "Cream Cheese": {P:15, M:15, G:15, GG:15},
   "Chocolate": {P:10, M:10, G:10, GG:10}
 };
+// ---------- NOVA SEÇÃO: BORDAS RECHEADAS ----------
+const bordasRecheadas = [
+  {nome:"Catupiry", desc:"Clássica e cremosa, perfeita para qualquer pizza!", precos:{P:8,M:8,G:8,GG:8}},
+  {nome:"Mussarela", desc:"Recheada com queijo mussarela derretido.", precos:{P:12,M:12,G:12,GG:12}},
+  {nome:"Cheddar", desc:"Borda com delicioso creme de cheddar.", precos:{P:10,M:10,G:10,GG:10}},
+  {nome:"Cream Cheese", desc:"Cremosa e sofisticada, para paladares exigentes.", precos:{P:15,M:15,G:15,GG:15}},
+  {nome:"Chocolate", desc:"Perfeita para pizzas doces!", precos:{P:10,M:10,G:10,GG:10}}
+];
+
 
  // Pizzas Salgadas
 const pizzasSalgadas = [
@@ -265,6 +274,7 @@ function gerarMenu() {
     let secao = document.createElement("div");
     secao.className="secao";
     secao.innerHTML=`<h2>${titulo}</h2>`;
+
     itens.forEach(item=>{
       const div=document.createElement("div");
       div.className="item";
@@ -273,33 +283,34 @@ function gerarMenu() {
           <p>${item.desc || ""}</p>
           ${item.precos
             ? `<div class="preco">
-                P: R$${item.precos.P} | M: R$${item.precos.M} | G: R$${item.precos.G} | GG: ${item.precos.GG !== null ? 'R$'+item.precos.GG : '—'}
+                P: R$${item.precos.P} | M: R$${item.precos.M} | G: R$${item.precos.G} | GG: R$${item.precos.GG}
               </div>`
-            : `<p class="preco">${item.valor}</p>`
-          }
+            : `<p class="preco">${item.valor}</p>`}
         </div>`;
-      const btn=document.createElement("button");
-      if(isPizza){
-        btn.textContent="Adicionar";
-        btn.onclick=()=>{abrirModal(item.nome)};
-      }else{
-        btn.textContent="Adicionar";
-        btn.onclick=()=>{adicionarBebida(item.nome)};
+
+      // 👉 Só adiciona o botão “Adicionar” se NÃO for bordas recheadas
+      if (titulo !== "🍞 BORDAS RECHEADAS") {
+        const btn = document.createElement("button");
+        btn.textContent = "Adicionar";
+        btn.onclick = () => { 
+          if (isPizza) abrirModal(item.nome); 
+          else adicionarBebida(item.nome); 
+        };
+        div.appendChild(btn);
       }
-      div.appendChild(btn);
+
       secao.appendChild(div);
     });
+
     menu.appendChild(secao);
   }
 
   criarSecao("🍕 PIZZAS SALGADAS", pizzasSalgadas);
   criarSecao("🍫 PIZZAS DOCES", pizzasDoces);
+  criarSecao("🍞 BORDAS RECHEADAS", bordasRecheadas, false);
   criarSecao("🍹 BEBIDAS", bebidas, false);
-
-  ["sabor1","sabor2","sabor3"].forEach(selId=>{
-    document.getElementById(selId).addEventListener("change", atualizarOpcoesSabores);
-  });
 }
+
 
 // ---------- FUNÇÕES DE MODAL ----------
 function abrirModal(nomeSabor=null){
