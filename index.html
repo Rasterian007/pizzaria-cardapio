@@ -111,6 +111,23 @@ select, textarea { width:100%; padding:8px; margin:5px 0; border-radius:5px; bor
       <option value="Retirada">🏠 Retirar no local</option>
       <option value="Entrega">🚗 Entrega</option>
     </select><br>
+    
+<!-- Mensagem de taxa de motoboy -->
+<div class="valorInfo" id="taxaMotoboy" style="display:none; color:rgb(255, 0, 0); margin-top:5px;">
+  🚗 Aviso: A ENTREGA VIA MOTOBOY POSSUI TAXA ADICIONAL.
+</div>
+
+<script>
+// Mostra mensagem de taxa somente quando for Entrega
+document.getElementById("tipoEntrega").addEventListener("change", function() {
+  const taxa = document.getElementById("taxaMotoboy");
+  if(this.value === "Entrega"){
+    taxa.style.display = "block";
+  } else {
+    taxa.style.display = "none";
+  }
+});
+</script>
 
     <select id="pagamento">
       <option value="Dinheiro">💵 Dinheiro</option>
