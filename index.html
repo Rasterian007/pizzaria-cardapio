@@ -442,24 +442,27 @@ function finalizarPedido(){
   });
   texto+=`🚚 Tipo de entrega: ${entrega}\n💳 Forma de pagamento: ${pagamento}\n📝 Observações: ${obs}`;
 
-  // Se for entrega, pegamos a localização
+  function enviarWhatsApp(textoFinal){
+    const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(textoFinal)}`;
+    window.open(url, "_blank");
+  }
+
+  // Se for entrega, tentamos pegar localização
   if(entrega === "Entrega" && navigator.geolocation){
     navigator.geolocation.getCurrentPosition(function(position){
       const lat = position.coords.latitude;
       const lon = position.coords.longitude;
       texto += `\n📍 Localização: https://www.google.com/maps?q=${lat},${lon}`;
-      const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
-      window.open(url,"_blank");
+      enviarWhatsApp(texto);
     }, function(error){
       alert("Não foi possível obter sua localização. O pedido será enviado sem localização.");
-      const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
-      window.open(url,"_blank");
-    });
+      enviarWhatsApp(texto);
+    }, {enableHighAccuracy:true, timeout:10000});
   } else {
-    const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
-    window.open(url,"_blank");
+    enviarWhatsApp(texto);
   }
 }
+
 
 
 // ---------- GERAR MENU ----------
