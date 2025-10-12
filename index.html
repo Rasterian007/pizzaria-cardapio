@@ -442,26 +442,30 @@ function finalizarPedido(){
   });
   texto+=`🚚 Tipo de entrega: ${entrega}\n💳 Forma de pagamento: ${pagamento}\n📝 Observações: ${obs}`;
 
-  function enviarWhatsApp(textoFinal){
-    const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(textoFinal)}`;
-    window.open(url, "_blank");
-  }
+  const urlBase = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
 
-  // Se for entrega, tentamos pegar localização
+  // Se for entrega, tentar pegar localização, mas já abrimos o WhatsApp imediatamente
   if(entrega === "Entrega" && navigator.geolocation){
+    // Abrir WhatsApp imediatamente
+    const win = window.open(urlBase, "_blank");
+
+    // Depois tentamos obter localização
     navigator.geolocation.getCurrentPosition(function(position){
       const lat = position.coords.latitude;
       const lon = position.coords.longitude;
-      texto += `\n📍 Localização: https://www.google.com/maps?q=${lat},${lon}`;
-      enviarWhatsApp(texto);
+      const urlComLocal = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto + `\n📍 Localização: https://www.google.com/maps?q=${lat},${lon}`)}`;
+      // Atualiza a aba/janela aberta
+      if(win) win.location.href = urlComLocal;
     }, function(error){
-      alert("Não foi possível obter sua localização. O pedido será enviado sem localização.");
-      enviarWhatsApp(texto);
+      console.log("Não foi possível obter localização, enviando sem ela.");
     }, {enableHighAccuracy:true, timeout:10000});
+
   } else {
-    enviarWhatsApp(texto);
+    // Retirada ou navegador sem geolocalização
+    window.open(urlBase, "_blank");
   }
 }
+
 
 
 
