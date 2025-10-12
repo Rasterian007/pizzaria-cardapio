@@ -116,17 +116,27 @@ select, textarea { width:100%; padding:8px; margin:5px 0; border-radius:5px; bor
 <div class="valorInfo" id="taxaMotoboy" style="display:none; color:rgb(255, 0, 0); margin-top:5px;">
   🚗 Aviso: A ENTREGA VIA MOTOBOY POSSUI TAXA ADICIONAL.
 </div>
+<!-- Campo de endereço para entrega -->
+<div id="divEndereco" style="display:none; margin-top:5px;">
+  <textarea id="enderecoEntrega" placeholder="Digite o endereço para entrega" rows="2"></textarea>
+</div>
 
 <script>
 // Mostra mensagem de taxa somente quando for Entrega
 document.getElementById("tipoEntrega").addEventListener("change", function() {
   const taxa = document.getElementById("taxaMotoboy");
+  const divEndereco = document.getElementById("divEndereco");
+
   if(this.value === "Entrega"){
     taxa.style.display = "block";
+    divEndereco.style.display = "block"; // mostra campo de endereço
   } else {
     taxa.style.display = "none";
+    divEndereco.style.display = "none"; // esconde campo de endereço
   }
 });
+
+
 </script>
 
     <select id="pagamento">
@@ -423,6 +433,14 @@ function finalizarPedido(){
   }
 
   const entrega = document.getElementById("tipoEntrega").value;
+  if(entrega === "Entrega"){
+  const endereco = document.getElementById("enderecoEntrega").value.trim();
+  if(endereco === ""){
+    alert("Por favor, digite o endereço para entrega!");
+    return;
+  }
+}
+
   const pagamento = document.getElementById("pagamento").value;
   const obs = document.getElementById("obs").value;
 
@@ -440,7 +458,8 @@ function finalizarPedido(){
       texto+=`🥤 Bebida: ${p.texto}\n\n`;
     }
   });
-  texto+=`🚚 Tipo de entrega: ${entrega}\n💳 Forma de pagamento: ${pagamento}\n📝 Observações: ${obs}`;
+  let enderecoMsg = entrega === "Entrega" ? `\n🏠 Endereço: ${document.getElementById("enderecoEntrega").value.trim()}` : "";
+texto+=`🚚 Tipo de entrega: ${entrega}${enderecoMsg}\n💳 Forma de pagamento: ${pagamento}\n📝 Observações: ${obs}`;
 
   const urlBase = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
 
