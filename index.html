@@ -417,42 +417,55 @@ function atualizarCarrinho(){
 
 // ---------- FINALIZAR PEDIDO ----------
 function finalizarPedido(){
-  if(entrega === "Entrega" && navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(pos=>{
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
-      texto += `📍 Localização: https://www.google.com/maps?q=${lat},${lon}`;
-      const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
-      window.open(url,"_blank");
-    }, err=>{
-      alert("Não foi possível pegar sua localização. O WhatsApp abrirá sem ela.");
-      const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
-      window.open(url,"_blank");
-    });
-}
+  if(pedido.length===0){ 
+    alert("Adicione itens ao carrinho antes de finalizar!"); 
+    return; 
+  }
 
-
-  
-  texto+=`🚚 Tipo de entrega: ${entrega}\n💳 Forma de pagamento: ${pagamento}\n📝 Observações: ${obs}\n`;
-
-  // Verifica se o usuário quer entregar no endereço
-  if(entrega === "Entrega" && navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(pos=>{
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
-      texto += `📍 Localização: https://www.google.com/maps?q=${lat},${lon}`;
-      const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
-      window.open(url,"_blank");
-    }, err=>{
-      alert("Não foi possível pegar sua localização. O WhatsApp abrirá sem ela.");
-      const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
-      window.open(url,"_blank");
-    });
+  if(navigator.geolocation){ 
+    navigator.geolocation.getCurrentPosition(enviarPedidoComLocalizacao, erroLocalizacao, {timeout:10000});
   } else {
-    const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
-    window.open(url,"_blank");
+    alert("Seu navegador não suporta Geolocalização. O pedido será enviado sem localização.");
+    enviarPedidoComLocalizacao(); // envia sem localização
   }
 }
+
+function enviarPedidoComLocalizacao(position){
+  const entrega=document.getElementById("tipoEntrega").value;
+  const pagamento=document.getElementById("pagamento").value;
+  const obs=document.getElementById("obs").value;
+
+  let texto="Olá! Gostaria de fazer o pedido:\n\n";
+  pedido.forEach(p=>{
+    if(p.texto.includes("Borda")){
+      const partes=p.texto.split(" - ");
+      const saboresETamanho=partes[0];
+      const borda=partes[1].replace("Borda: ","");
+      const tamanhoMatch=saboresETamanho.match(/\(([^)]+)\)/);
+      const tamanho=tamanhoMatch?tamanhoMatch[1]:"?";
+      const sabores=saboresETamanho.replace(/\([^)]+\)/,"");
+      texto+=`🍕 Pizza: ${sabores.trim()}\nTamanho: ${tamanho}\nBorda: ${borda}\n\n`;
+    } else {
+      texto+=`🥤 Bebida: ${p.texto}\n\n`;
+    }
+  });
+
+  texto+=`🚚 Tipo de entrega: ${entrega}\n💳 Forma de pagamento: ${pagamento}\n📝 Observações: ${obs}\n`;
+
+  // Adiciona localização se disponível
+  if(position && position.coords){
+    texto+=`📍 Minha localização: https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`;
+  }
+
+  const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
+  window.open(url,"_blank");
+}
+
+function erroLocalizacao(error){
+  alert("Não foi possível obter sua localização. O pedido será enviado sem localização.");
+  enviarPedidoComLocalizacao(); // envia sem localização
+}
+
 
 
 // ---------- GERAR MENU ----------
