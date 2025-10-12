@@ -416,57 +416,51 @@ function atualizarCarrinho(){
 }
 
 // ---------- FINALIZAR PEDIDO ----------
-function finalizarPedido(){
-  if(pedido.length===0){ 
-    alert("Adicione itens ao carrinho antes de finalizar!"); 
-    return; 
-  }
-
-  if(navigator.geolocation){ 
-    navigator.geolocation.getCurrentPosition(enviarPedidoComLocalizacao, erroLocalizacao, {timeout:10000});
-  } else {
-    alert("Seu navegador não suporta Geolocalização. O pedido será enviado sem localização.");
-    enviarPedidoComLocalizacao(); // envia sem localização
-  }
-}
-
-function enviarPedidoComLocalizacao(position){
-  const entrega=document.getElementById("tipoEntrega").value;
-  const pagamento=document.getElementById("pagamento").value;
-  const obs=document.getElementById("obs").value;
-
-  let texto="Olá! Gostaria de fazer o pedido:\n\n";
-  pedido.forEach(p=>{
-    if(p.texto.includes("Borda")){
-      const partes=p.texto.split(" - ");
-      const saboresETamanho=partes[0];
-      const borda=partes[1].replace("Borda: ","");
-      const tamanhoMatch=saboresETamanho.match(/\(([^)]+)\)/);
-      const tamanho=tamanhoMatch?tamanhoMatch[1]:"?";
-      const sabores=saboresETamanho.replace(/\([^)]+\)/,"");
-      texto+=`🍕 Pizza: ${sabores.trim()}\nTamanho: ${tamanho}\nBorda: ${borda}\n\n`;
-    } else {
-      texto+=`🥤 Bebida: ${p.texto}\n\n`;
+function finalizarPedido() {
+    if (pedido.length === 0) {
+        alert("Adicione itens ao carrinho antes de finalizar!");
+        return;
     }
-  });
 
-  texto+=`🚚 Tipo de entrega: ${entrega}\n💳 Forma de pagamento: ${pagamento}\n📝 Observações: ${obs}\n`;
+    // Verifica se o navegador suporta geolocalização
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
 
-  // Adiciona localização se disponível
-  if(position && position.coords){
-    texto+=`📍 Minha localização: https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`;
-  }
+            const entrega = document.getElementById("tipoEntrega").value;
+            const pagamento = document.getElementById("pagamento").value;
+            const obs = document.getElementById("obs").value;
 
-  const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
-  window.open(url,"_blank");
+            let texto = "Olá! Gostaria de fazer o pedido:\n\n";
+            pedido.forEach(p => {
+                if (p.texto.includes("Borda")) {
+                    const partes = p.texto.split(" - ");
+                    const saboresETamanho = partes[0];
+                    const borda = partes[1].replace("Borda: ", "");
+                    const tamanhoMatch = saboresETamanho.match(/\(([^)]+)\)/);
+                    const tamanho = tamanhoMatch ? tamanhoMatch[1] : "?";
+                    const sabores = saboresETamanho.replace(/\([^)]+\)/, "");
+                    texto += `🍕 Pizza: ${sabores.trim()}\nTamanho: ${tamanho}\nBorda: ${borda}\n\n`;
+                } else {
+                    texto += `🥤 Bebida: ${p.texto}\n\n`;
+                }
+            });
+
+            // Adiciona informações de entrega, pagamento, observações e localização
+            texto += `🚚 Tipo de entrega: ${entrega}\n💳 Forma de pagamento: ${pagamento}\n📝 Observações: ${obs}\n📍 Localização: https://www.google.com/maps?q=${latitude},${longitude}`;
+
+            // Abre WhatsApp com a mensagem pronta
+            const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
+            window.open(url, "_blank");
+
+        }, function(error) {
+            alert("Não foi possível obter sua localização. Você precisa permitir o acesso à localização para finalizar o pedido.");
+        });
+    } else {
+        alert("Geolocalização não é suportada pelo seu navegador.");
+    }
 }
-
-function erroLocalizacao(error){
-  alert("Não foi possível obter sua localização. O pedido será enviado sem localização.");
-  enviarPedidoComLocalizacao(); // envia sem localização
-}
-
-
 
 // ---------- GERAR MENU ----------
 function gerarMenu(){
