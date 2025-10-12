@@ -112,10 +112,22 @@ select, textarea { width:100%; padding:8px; margin:5px 0; border-radius:5px; bor
       <option value="Entrega">🚗 Entrega</option>
     </select><br>
     
-    <!-- Mensagem de taxa de motoboy -->
-    <div class="valorInfo" id="taxaMotoboy" style="display:none; color:rgb(255, 0, 0); margin-top:5px;">
-      🚗 Aviso: A ENTREGA VIA MOTOBOY POSSUI TAXA ADICIONAL.
-    </div>
+<!-- Mensagem de taxa de motoboy -->
+<div class="valorInfo" id="taxaMotoboy" style="display:none; color:rgb(255, 0, 0); margin-top:5px;">
+  🚗 Aviso: A ENTREGA VIA MOTOBOY POSSUI TAXA ADICIONAL.
+</div>
+
+<script>
+// Mostra mensagem de taxa somente quando for Entrega
+document.getElementById("tipoEntrega").addEventListener("change", function() {
+  const taxa = document.getElementById("taxaMotoboy");
+  if(this.value === "Entrega"){
+    taxa.style.display = "block";
+  } else {
+    taxa.style.display = "none";
+  }
+});
+</script>
 
     <select id="pagamento">
       <option value="Dinheiro">💵 Dinheiro</option>
@@ -136,12 +148,6 @@ select, textarea { width:100%; padding:8px; margin:5px 0; border-radius:5px; bor
 const numeroWhatsApp = "5587981347413";
 let pedido = [];
 
-// ---------- MOSTRAR TAXA DE MOTOboy ----------
-document.getElementById("tipoEntrega").addEventListener("change", function() {
-  const taxa = document.getElementById("taxaMotoboy");
-  taxa.style.display = this.value === "Entrega" ? "block" : "none";
-});
-
 // ---------- BORDAS ----------
 const bordasRecheadas = [
   {nome:"Sem borda", precos:{P:0,M:0,G:0,GG:0}},
@@ -151,6 +157,8 @@ const bordasRecheadas = [
   {nome:"Cream Cheese", precos:{P:15,M:15,G:15,GG:15}},
   {nome:"Chocolate", precos:{P:10,M:10,G:10,GG:10}}
 ];
+
+// Atualiza select de bordas
 function atualizarBordas() {
   const select = document.getElementById("borda");
   const tamanho = document.getElementById("tamanhoPizza").value;
@@ -355,6 +363,7 @@ function atualizarContadorCarrinho(){
 function abrirCarrinho(){ document.getElementById("modalCarrinho").style.display="flex"; atualizarCarrinho(); }
 function fecharCarrinho(){ document.getElementById("modalCarrinho").style.display="none"; }
 
+// ---------- ATUALIZA CARRINHO E TOTAL ----------
 function atualizarCarrinho(){
   const itensDiv=document.getElementById("itens"); 
   itensDiv.innerHTML="";
@@ -397,7 +406,7 @@ function atualizarCarrinho(){
     } else {
       const bebida=bebidas.find(b=>b.nome===p.texto);
       if(bebida){
-        const valorNum=Number(bebida.valor.replace("R$","").replace(",","."))||0;
+        const valorNum=Number(bebida.valor.replace("R$","").replace(",","."));
         total+=valorNum;
       }
     }
@@ -406,43 +415,52 @@ function atualizarCarrinho(){
   document.getElementById("totalCarrinho").textContent=`Total do pedido: R$${total.toFixed(2).replace(".",",")}`;
 }
 
-// ---------- FINALIZAR PEDIDO COM LOCALIZAÇÃO ----------
+// ---------- FINALIZAR PEDIDO ----------
 function finalizarPedido(){
-  if(pedido.length===0){ alert("Adicione itens ao carrinho antes de finalizar!"); return; }
-  const entrega=document.getElementById("tipoEntrega").value;
-  const pagamento=document.getElementById("pagamento").value;
-  const obs=document.getElementById("obs").value;
+  if(pedido.length===0){ 
+    alert("Adicione itens ao carrinho antes de finalizar!"); 
+    return; 
+  }
 
-  function enviarWhatsApp(lat=null, lon=null){
-    let texto="Olá! Gostaria de fazer o pedido:\n\n";
-    pedido.forEach(p=>{
-      if(p.texto.includes("Borda")){
-        const partes=p.texto.split(" - ");
-        const saboresETamanho=partes[0];
-        const borda=partes[1].replace("Borda: ","");
-        const tamanhoMatch=saboresETamanho.match(/\(([^)]+)\)/);
-        const tamanho=tamanhoMatch?tamanhoMatch[1]:"?";
-        const sabores=saboresETamanho.replace(/\([^)]+\)/,"");
-        texto+=`🍕 Pizza: ${sabores.trim()}\nTamanho: ${tamanho}\nBorda: ${borda}\n\n`;
-      } else {
-        texto+=`🥤 Bebida: ${p.texto}\n\n`;
-      }
+  const entrega = document.getElementById("tipoEntrega").value;
+  const pagamento = document.getElementById("pagamento").value;
+  const obs = document.getElementById("obs").value;
+
+  let texto = "Olá! Gostaria de fazer o pedido:\n\n";
+  pedido.forEach(p=>{
+    if(p.texto.includes("Borda")){
+      const partes=p.texto.split(" - ");
+      const saboresETamanho=partes[0];
+      const borda=partes[1].replace("Borda: ","");
+      const tamanhoMatch=saboresETamanho.match(/\(([^)]+)\)/);
+      const tamanho=tamanhoMatch?tamanhoMatch[1]:"?";
+      const sabores=saboresETamanho.replace(/\([^)]+\)/,"");
+      texto+=`🍕 Pizza: ${sabores.trim()}\nTamanho: ${tamanho}\nBorda: ${borda}\n\n`;
+    } else {
+      texto+=`🥤 Bebida: ${p.texto}\n\n`;
+    }
+  });
+  texto+=`🚚 Tipo de entrega: ${entrega}\n💳 Forma de pagamento: ${pagamento}\n📝 Observações: ${obs}`;
+
+  // Se for entrega, pegamos a localização
+  if(entrega === "Entrega" && navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(function(position){
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      texto += `\n📍 Localização: https://www.google.com/maps?q=${lat},${lon}`;
+      const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
+      window.open(url,"_blank");
+    }, function(error){
+      alert("Não foi possível obter sua localização. O pedido será enviado sem localização.");
+      const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
+      window.open(url,"_blank");
     });
-    texto+=`🚚 Tipo de entrega: ${entrega}\n💳 Forma de pagamento: ${pagamento}\n📝 Observações: ${obs}`;
-    if(lat && lon) texto += `\n📍 Minha localização: https://www.google.com/maps?q=${lat},${lon}`;
+  } else {
     const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
     window.open(url,"_blank");
   }
-
-  if(entrega==="Entrega" && navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(
-      pos => enviarWhatsApp(pos.coords.latitude, pos.coords.longitude),
-      err => { alert("Não foi possível obter a localização. O pedido será enviado sem localização."); enviarWhatsApp(); }
-    );
-  } else {
-    enviarWhatsApp();
-  }
 }
+
 
 // ---------- GERAR MENU ----------
 function gerarMenu(){
